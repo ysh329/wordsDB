@@ -103,11 +103,12 @@ class class_create_database_table(object):
                                 pinyin VARCHAR(100) NOT NULL,
                                 showtimes INT(11) NOT NULL DEFAULT 0,
                                 weight FLOAT(11) NOT NULL DEFAULT 0.0,
+                                corpus_scale INT(11),
                                 cixing VARCHAR(10) NOT NULL,
                                 type1 VARCHAR(30) NOT NULL,
                                 type2 VARCHAR(30) NOT NULL,
                                 source VARCHAR(50) NOT NULL,
-                                gram int(11),
+                                gram INT(11),
                                 meaning TEXT NOT NULL,
                                 UNIQUE (word)
                                 )""" % table_name)
@@ -122,7 +123,7 @@ class class_create_database_table(object):
             logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
 
 ################################### PART3 CLASS TEST ##################################
-#'''
+'''
 # Initialize parameters
 database_name = "wordsDB"
 table_name = "ngram_word_table"
@@ -130,4 +131,4 @@ table_name = "ngram_word_table"
 CreateDBandTable = class_create_database_table()
 CreateDBandTable.create_database(database_name = database_name)
 CreateDBandTable.create_table(database_name = database_name, table_name = table_name)
-#'''
+'''

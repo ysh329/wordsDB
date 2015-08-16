@@ -11,22 +11,9 @@
 __author__ = 'yuens'
 ################################### PART1 IMPORT ######################################
 from myclass.class_create_database_table import *
-
+from myclass.class_get_corpus_from_db import *
 ################################### PART2 MAIN && FUNCTION ############################
 def main():
-    # Log part
-    logging.basicConfig(level = logging.DEBUG,
-              format = '%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
-              datefmt = '%y-%m-%d %H:%M:%S:%SS',
-              filename = './main.log',
-              filemode = 'a')
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s')
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-    logging.info("START at " + time.strftime('%Y-%m-%d %X', time.localtime()))
-
     # Initialize parameters
     database_name = "wordsDB"
     table_name = "ngram_word_table"
@@ -34,6 +21,27 @@ def main():
     CreateDBandTable = class_create_database_table()
     CreateDBandTable.create_database(database_name = database_name)
     CreateDBandTable.create_table(database_name = database_name, table_name = table_name)
+
+
+    # Initialize parameters
+    essay_database_name = "essayDB"
+    essay_table_name = "securities_newspaper_shzqb_table"
+
+    # table1: securities_newspaper_shzqb_table
+    # table2: securities_newspaper_zgzqb_table
+    # table3: securities_newspaper_zqrb_table
+    # table4: securities_newspaper_zqsb_table
+
+    GetCorpus = class_get_corpus_from_db(database_name = essay_database_name)
+    GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay_table_name)
+
+
+
+
+
+
+
+
 
 
 
