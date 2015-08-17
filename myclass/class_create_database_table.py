@@ -29,7 +29,7 @@ class class_create_database_table(object):
         self.start = time.clock()
         logging.basicConfig(level = logging.DEBUG,
                   format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
-                  datefmt = '%y-%m-%d %H:%M:%S:%SS',
+                  datefmt = '%y-%m-%d %H:%M:%S',
                   filename = '../main.log',
                   filemode = 'a')
         console = logging.StreamHandler()

@@ -12,8 +12,10 @@ __author__ = 'yuens'
 ################################### PART1 IMPORT ######################################
 from myclass.class_create_database_table import *
 from myclass.class_get_corpus_from_db import *
+from pyspark import SparkContext, SparkConf
 ################################### PART2 MAIN && FUNCTION ############################
 def main():
+
     # Initialize parameters
     database_name = "wordsDB"
     table_name = "ngram_word_table"
@@ -33,7 +35,25 @@ def main():
     # table4: securities_newspaper_zqsb_table
 
     GetCorpus = class_get_corpus_from_db(database_name = essay_database_name)
-    GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay_table_name)
+    essay_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay_table_name)
+    logging.info("essay_list[0][0]:%s" % essay_list[0][0])
+    logging.info("essay_list[0][1]:%s" % essay_list[0][1])
+    logging.info("essay_list[0][2]:%s" % essay_list[0][2])
+    essay_tuple_list = map(lambda date_title_content: tuple(date_title_content), essay_list)
+
+    # Initialize parameters
+    #sparkHome = "/home/yuens/MySpark/spark-1.4.1-bin-hadoop2.6/"
+    appName = "wordsDBApp"
+    conf = SparkConf().setAppName(appName).setMaster("local")
+    sc = SparkContext(conf = conf)
+    #sc = SparkContext("local", appName)
+    rdd = sc.parallelize(essay_tuple_list)
+    logging.info("rdd.top():%s" % str(rdd.top(1)))
+    sc.stop()
+
+
+
+
 
 
 

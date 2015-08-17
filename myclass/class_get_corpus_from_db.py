@@ -27,7 +27,7 @@ class class_get_corpus_from_db(object):
         self.start = time.clock()
         logging.basicConfig(level = logging.DEBUG,
                   format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
-                  datefmt = '%y-%m-%d %H:%M:%S:%SS',
+                  datefmt = '%y-%m-%d %H:%M:%S',
                   filename = '../main.log',
                   filemode = 'a')
         console = logging.StreamHandler()
@@ -113,7 +113,9 @@ class class_get_corpus_from_db(object):
         logging.info("len(date_list):%s" % len(date_list))
         logging.info("date_list[0]:%s" % date_list[0])
         logging.info("type(date_list[0]):%s" % type(date_list[0]))
+        #return essay_str_list, date_list
         return essay_list
+
 ################################### PART3 CLASS TEST ##################################
 """
 # Initialize parameters
