@@ -60,49 +60,45 @@ class class_get_ngram_2_db(object):
 
 
 
-    def get_one_bi_tri_gram(raw_string):
-        """ Create table(table_name) of database(database_name), which is used for storing
-         words.
-        Args:
-            database_name   (str): a string stored the database's name.
-            table_name      (str): a string stored the table's name prepared to be created.
-        Returns:
-            None
-        """
-        one_gram_list = []
-        bi_gram_list = []
-        tri_gram_list = []
+def get_one_bi_tri_gram(raw_string):
+    """ Get onegram, bigram, trigram from raw_string.
+    Args:
+        raw_string   (str): a string stored the text
+    Returns:
+        (one_gram_list, bi_gram_list, tri_gram_list) (tuple):
+            each element in tuple is a list of onegram or
+            bigram or trigram.
+    """
+    one_gram_list = []
+    bi_gram_list = []
+    tri_gram_list = []
 
-        for idx in xrange(len(raw_string)):
-            # one-gram
-            one_gram = raw_string[idx]
-            one_gram_list.append(one_gram)
-            # bi-gram
-            if len(raw_string) > idx + 1:
-                bi_gram = raw_string[idx:idx+2]
-                bi_gram_list.append(bi_gram)
-            else: bi_gram = None
-            # tri-gram
-            if len(raw_string) > idx + 2:
-                tri_gram = raw_string[idx:idx+3]
-                tri_gram_list.append(tri_gram)
-            else: tri_gram = None
-        return (one_gram_list, bi_gram_list, tri_gram_list)
+    for idx in xrange(len(raw_string)):
+        # one-gram
+        one_gram = raw_string[idx]
+        one_gram_list.append(one_gram)
+        # bi-gram
+        if len(raw_string) > idx + 1:
+            bi_gram = raw_string[idx:idx+2]
+            bi_gram_list.append(bi_gram)
+        else: bi_gram = None
+        # tri-gram
+        if len(raw_string) > idx + 2:
+            tri_gram = raw_string[idx:idx+3]
+            tri_gram_list.append(tri_gram)
+        else: tri_gram = None
+    return (one_gram_list, bi_gram_list, tri_gram_list)
 
 
 
-success_counter = 0
-failure_counter = 0
 def insert_ngram_2_db(word, showtimes, database_name, table_name):
     global success_counter, failure_counter
-
     try:
         con = MySQLdb.connect(host = "localhost", user = "root", passwd = "931209", db = database_name, charset = "utf8")
         logging.info("Success in connecting MySQL.")
     except MySQLdb.Error, e:
         logging.error("Fail in connecting MySQL.")
         logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
-
     cursor = con.cursor()
     try:
         cursor.execute("""SELECT id FROM %s.%s WHERE word='%s'"""\
@@ -157,7 +153,33 @@ def insert_ngram_2_db(word, showtimes, database_name, table_name):
 
 
 
-def computation_corpus_scale(self, database_name, table_name):
-    pass
-
+def computation_corpus_scale(database_name, table_name):
+    try:
+        con = MySQLdb.connect(host = "localhost", user = "root", passwd = "931209", db = database_name, charset = "utf8")
+        logging.info("Success in connecting MySQL.")
+    except MySQLdb.Error, e:
+        logging.error("Fail in connecting MySQL.")
+        logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
+    cursor = con.cursor()
+    try:
+        cursor.execute("""SELECT gram FROM %s.%s group by gram""" % (database_name, table_name))
+        gram_tuple = cursor.fetchall()
+        gram_list = map(lambda gram: int(gram[0]), gram_tuple)
+        for idx in xrange(len(gram_list)):
+            ngram = gram_list[idx]
+            cursor.execute("""SELECT COUNT(*) FROM %s.%s WHERE gram='%s'""" % (database_name, table_name, ngram))
+            ngram_sum = int(cursor.fetchone[0])
+            cursor.execute("""UPDATE %s.%s SET corpus_scale='%s' WHERE gram='%s'""" % (database_name, table_name, ngram_sum, ngram))
+            cursor.commit()
+            logging.info("success in updating corpus scale for %s-gram word of %s word records." % (ngram, ngram_sum))
+    except MySQLdb.Error, e:
+        con.rollback()
+        logging.error("Fail in selecting gram word in table %s of database %s."\
+                      % (table_name, database_name))
+        logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
+    finally:
+        con.close()
+    return None
 ################################### PART3 CLASS TEST ##################################
+success_counter = 0
+failure_counter = 0
