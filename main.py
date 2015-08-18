@@ -27,43 +27,44 @@ def main():
 
     # Initialize parameters
     essay_database_name = "essayDB"
-    essay_table_name = "securities_newspaper_shzqb_table"
 
     # table1: securities_newspaper_shzqb_table
     # table2: securities_newspaper_zgzqb_table
     # table3: securities_newspaper_zqrb_table
     # table4: securities_newspaper_zqsb_table
 
-    GetCorpus = class_get_corpus_from_db(database_name = essay_database_name)
-    essay_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay_table_name)
-    logging.info("essay_list[0][0]:%s" % essay_list[0][0])
-    logging.info("essay_list[0][1]:%s" % essay_list[0][1])
-    logging.info("essay_list[0][2]:%s" % essay_list[0][2])
-    essay_tuple_list = map(lambda date_title_content: tuple(date_title_content), essay_list)
+    GetCorpus = class_get_corpus_from_db()
+    essay1_table_name = "securities_newspaper_shzqb_table"
+    essay2_table_name = "securities_newspaper_zgzqb_table"
+    essay3_table_name = "securities_newspaper_zqrb_table"
+    essay4_table_name = "securities_newspaper_zqsb_table"
+
+    essay1_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay1_table_name)
+    essay2_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay2_table_name)
+    essay3_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay3_table_name)
+    essay4_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay4_table_name)
+
+    all_essay_list = []
+    all_essay_list.extend(essay1_list)
+    all_essay_list.extend(essay2_list)
+    all_essay_list.extend(essay3_list)
+    all_essay_list.extend(essay4_list)
+
+    print "len(all_essay_list):", len(all_essay_list)
+    logging.info("len(all_essay_list):%s" % len(all_essay_list))
 
     # Initialize parameters
     #sparkHome = "/home/yuens/MySpark/spark-1.4.1-bin-hadoop2.6/"
     appName = "wordsDBApp"
     conf = SparkConf().setAppName(appName).setMaster("local")
     sc = SparkContext(conf = conf)
-    #sc = SparkContext("local", appName)
-    rdd = sc.parallelize(essay_tuple_list)
-    logging.info("rdd.top():%s" % str(rdd.top(1)))
+    essay_tuple_rdd = sc.parallelize(all_essay_list)
+    essay_title_gram_rdd = essay_tuple_rdd.map(lambda essay_tuple: one_bi_tri_gram(essay_tuple[1]))
+    essay_content_gram_rdd = essay_tuple_rdd.map(lambda essay_tuple: one_bi_tri_gram(essay_tuple[2]))
+
+
+
     sc.stop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     logging.info("END at:" + time.strftime('%Y-%m-%d %X', time.localtime()))
 ################################ PART4 EXECUTE ########################################
