@@ -149,7 +149,8 @@ def main():
     pair_num = ngram_pair_rdd.count()
     logging.info("pair_num:%s" % pair_num)
     logging.info("ngram_pair_rdd.take(1):%s" % ngram_pair_rdd.take(1))
-
+    logging.info("preparing to insert ngram to table %s of database %s."\
+                 % (ngram_table_name, word_database_name))
     ngram_pair_rdd\
         .map(lambda (word, showtimes, length):\
                          insert_ngram_2_db
@@ -160,10 +161,6 @@ def main():
                              )\
              )\
         .take(ngram_pair_rdd.count())
-
-    logging.info("success_counter:%s" % success_counter)
-    logging.info("failure_counter:%s" % failure_counter)
-    logging.info("success rate:%s" % (success_counter / float(success_counter + failure_counter)))
 
     computation_corpus_scale(database_name = word_database_name, table_name = ngram_table_name)
 

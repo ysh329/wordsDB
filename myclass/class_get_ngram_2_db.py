@@ -61,7 +61,8 @@ class class_get_ngram_2_db(object):
 
 
 def get_one_bi_tri_gram(raw_string):
-    """ Get onegram, bigram, trigram from raw_string.
+    """ Get onegram, bigram, trigram from raw_string and
+     return.
     Args:
         raw_string   (str): a string stored the text
     Returns:
@@ -92,7 +93,16 @@ def get_one_bi_tri_gram(raw_string):
 
 
 def insert_ngram_2_db(word, showtimes, database_name, table_name):
-    global success_counter, failure_counter
+    """ Insert ngram(word) and its show times(showtimes) in corpus to
+     table(table_name) of database(database_name).
+    Args:
+         word            (str): ngram word
+         showtimes       (int): this ngram word's show times in corpus
+         database_name   (str): name of preparing inserted database
+         table_name      (str): name of preparing inserted table
+    Returns:
+        None
+    """
     try:
         con = MySQLdb.connect(host = "localhost", user = "root", passwd = "931209", db = database_name, charset = "utf8")
         logging.info("Success in connecting MySQL.")
@@ -116,9 +126,7 @@ def insert_ngram_2_db(word, showtimes, database_name, table_name):
                               )
 
                 con.commit()
-                success_counter += 1
             except MySQLdb.Error, e:
-                failure_counter += 1
                 con.rollback()
                 logging.error("Failed in inserting %s gram word %s, which is existed."\
                               % (len(word), word))
@@ -134,15 +142,12 @@ def insert_ngram_2_db(word, showtimes, database_name, table_name):
                                % (database_name, table_name, showtimes, len(word), id)\
                               )
                 con.commit()
-                success_counter += 1
             except MySQLdb.Error, e:
-                failure_counter += 1
                 con.rollback()
                 logging.error("Failed in updating %s gram word %s, which is existed."\
                               % (len(word), word))
                 logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
     except MySQLdb.Error, e:
-        failure_counter += 1
         con.rollback()
         logging.error("Fail in selecting %s gram word %s in table %s of database %s."\
                       % (len(word), word, table_name, database_name))
@@ -154,24 +159,45 @@ def insert_ngram_2_db(word, showtimes, database_name, table_name):
 
 
 def computation_corpus_scale(database_name, table_name):
+    """ Compute the scale of corpus. Different ngram word, its corpus
+     scale is different, such as bigram word's corpus scale need to
+     compute the quantity of bigram words.
+    Args:
+         database_name   (str): name of preparing updated database
+         table_name      (str): name of preparing updated table
+    Returns:
+        None
+    """
     try:
-        con = MySQLdb.connect(host = "localhost", user = "root", passwd = "931209", db = database_name, charset = "utf8")
+        con = MySQLdb.connect(host = "localhost",\
+                              user = "root",\
+                              passwd = "931209",\
+                              db = database_name,\
+                              charset = "utf8")
         logging.info("Success in connecting MySQL.")
     except MySQLdb.Error, e:
         logging.error("Fail in connecting MySQL.")
         logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
     cursor = con.cursor()
     try:
-        cursor.execute("""SELECT gram FROM %s.%s group by gram""" % (database_name, table_name))
+        cursor.execute("""SELECT gram FROM %s.%s group by gram"""\
+                       % (database_name, table_name))
         gram_tuple = cursor.fetchall()
+        logging.info("gram_tuple:%s" % str(gram_tuple))
         gram_list = map(lambda gram: int(gram[0]), gram_tuple)
+        logging.info("gram_list:%s" % str(gram_list))
         for idx in xrange(len(gram_list)):
             ngram = gram_list[idx]
-            cursor.execute("""SELECT COUNT(*) FROM %s.%s WHERE gram='%s'""" % (database_name, table_name, ngram))
-            ngram_sum = int(cursor.fetchone[0])
-            cursor.execute("""UPDATE %s.%s SET corpus_scale='%s' WHERE gram='%s'""" % (database_name, table_name, ngram_sum, ngram))
-            cursor.commit()
-            logging.info("success in updating corpus scale for %s-gram word of %s word records." % (ngram, ngram_sum))
+            logging.info("ngram:", ngram)
+            cursor.execute("""SELECT COUNT(*) FROM %s.%s WHERE gram='%s'"""\
+                           % (database_name, table_name, ngram))
+            ngram_sum = int(cursor.fetchone()[0])
+            logging.info("ngram_sum:", ngram_sum)
+            cursor.execute("""UPDATE %s.%s SET corpus_scale='%s' WHERE gram='%s'"""\
+                           % (database_name, table_name, ngram_sum, ngram))
+            con.commit()
+            logging.info("success in updating corpus scale for %s-gram word of %s word records."\
+                         % (ngram, ngram_sum))
     except MySQLdb.Error, e:
         con.rollback()
         logging.error("Fail in selecting gram word in table %s of database %s."\
@@ -181,5 +207,3 @@ def computation_corpus_scale(database_name, table_name):
         con.close()
     return None
 ################################### PART3 CLASS TEST ##################################
-success_counter = 0
-failure_counter = 0
