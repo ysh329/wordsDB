@@ -31,13 +31,16 @@ def main():
     essay2_table_name = "securities_newspaper_zgzqb_table"
     essay3_table_name = "securities_newspaper_zqrb_table"
     essay4_table_name = "securities_newspaper_zqsb_table"
-    top_n = int(raw_input("input top n value:"))
+    while 1:
+        top_n = raw_input("input top n value:")
+        if top_n.isdigit() == True: top_n = int(top_n); break
+    logging.info("top_n:%s" % top_n)
+
 
 
     CreateDBandTable = class_create_database_table()
     CreateDBandTable.create_database(database_name = word_database_name)
     CreateDBandTable.create_table(database_name = word_database_name, table_name = ngram_table_name)
-
 
     GetCorpus = class_get_corpus_from_db(database_name = essay_database_name)
 
@@ -170,4 +173,17 @@ def main():
     logging.info("END at:" + time.strftime('%Y-%m-%d %X', time.localtime()))
 ################################ PART4 EXECUTE ########################################
 if __name__ == "__main__":
+    # logging part
+    logging.basicConfig(level = logging.DEBUG,
+              format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
+              datefmt = '%y-%m-%d %H:%M:%S',
+              filename = './main.log',
+              filemode = 'a')
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
+    logging.info("START at " + time.strftime('%Y-%m-%d %X', time.localtime()))
+
     main()
