@@ -1,3 +1,3 @@
-wordsDB
+trigram-statistic-language-model
 =====
-As the march of project Chinese-word-segmentation, I found that I should create and sustain a words database first. In this project, it mainly concentrates on the general words (come from modern Chinese dictionary, which as the first part) and professional words about financial, stock, fund and economics aspects.
+Accomplish trigram statistic language model by python, partly using spark, such as wordcount, etc.

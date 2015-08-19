@@ -12,7 +12,7 @@ __author__ = 'yuens'
 ################################### PART1 IMPORT ######################################
 from myclass.class_create_database_table import *
 from myclass.class_get_corpus_from_db import *
-from myclass.class_get_ngram_2_db import *
+from mydef.def_get_ngram_2_db import *
 from pyspark import SparkContext, SparkConf
 from compiler.ast import flatten
 ################################### PART2 MAIN && FUNCTION ############################
@@ -22,6 +22,7 @@ def main():
     essay_database_name = "essayDB"
     word_database_name = "wordsDB"
     ngram_table_name = "ngram_word_table"
+    trigger_name = "trigger_update_weight"
     # table1: securities_newspaper_shzqb_table
     # table2: securities_newspaper_zgzqb_table
     # table3: securities_newspaper_zqrb_table
@@ -46,10 +47,8 @@ def main():
     essay4_list = GetCorpus.get_essay_list_from_db(database_name = essay_database_name, table_name = essay4_table_name)
     logging.info("Get essay of 4 newspapers successfully.")
     all_essay_list = []
-    all_essay_list.extend(essay1_list)
-    all_essay_list.extend(essay2_list)
-    all_essay_list.extend(essay3_list)
-    all_essay_list.extend(essay4_list)
+    all_essay_list.extend(essay1_list); all_essay_list.extend(essay2_list)
+    all_essay_list.extend(essay3_list); all_essay_list.extend(essay4_list)
 
     logging.info("len(all_essay_list):%s" % len(all_essay_list))
 
@@ -161,10 +160,13 @@ def main():
                              )\
              )\
         .take(ngram_pair_rdd.count())
-
-    computation_corpus_scale(database_name = word_database_name, table_name = ngram_table_name)
-
     sc.stop()
+
+    computation_corpus_scale_2_db(database_name = word_database_name, table_name = ngram_table_name)
+    create_trigger_on_field_corpus_scale_and_weight(trigger_name = trigger_name,\
+                                                    database_name = word_database_name,\
+                                                    table_name = ngram_table_name)
+
     logging.info("END at:" + time.strftime('%Y-%m-%d %X', time.localtime()))
 ################################ PART4 EXECUTE ########################################
 if __name__ == "__main__":
