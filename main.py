@@ -10,10 +10,14 @@
 # Last:
 __author__ = 'yuens'
 ################################### PART1 IMPORT ######################################
+from pyspark import SparkContext, SparkConf
+
 from myclass.class_create_database_table import *
 from myclass.class_get_corpus_from_db import *
+
 from mydef.def_get_ngram_2_db import *
-from pyspark import SparkContext, SparkConf
+from mydef.def_rdd import *
+
 from compiler.ast import flatten
 ################################### PART2 MAIN && FUNCTION ############################
 def main():
@@ -134,13 +138,15 @@ def main():
 
     ngram_rdd = sc.parallelize(ngram_list)
     ngram_pair_rdd = (ngram_rdd\
-                      .map(lambda word: (word, 1))\
+                      .filter(symbol_stopword_filter)\
+                      .map(lambda word: ((word, len(word)), 1) )\
                       .reduceByKey(lambda x, y: x + y)\
-                      .map(lambda (word, showtimes): (word, showtimes, len(word))))
+                      .map(lambda ((word, length), showtimes): (word, showtimes, length)))
 
     top_bigram_and_trigram_pair_list = (ngram_pair_rdd\
                                         .filter(lambda (word, showtimes, length): length >= 2)\
                                         .takeOrdered(top_n, key = lambda (word, showtimes, length): -showtimes))
+
     for idx in xrange(len(top_bigram_and_trigram_pair_list)):
         pair_tuple = top_bigram_and_trigram_pair_list[idx]
         word = pair_tuple[0]
@@ -165,11 +171,8 @@ def main():
         .take(ngram_pair_rdd.count())
     sc.stop()
 
-    computation_corpus_scale_2_db(database_name = word_database_name, table_name = ngram_table_name)
-    create_trigger_on_field_corpus_scale_and_weight(trigger_name = trigger_name,\
-                                                    database_name = word_database_name,\
-                                                    table_name = ngram_table_name)
 
+    computation_corpus_scale_and_weight_2_db(database_name = word_database_name, table_name = ngram_table_name)
     logging.info("END at:" + time.strftime('%Y-%m-%d %X', time.localtime()))
 ################################ PART4 EXECUTE ########################################
 if __name__ == "__main__":

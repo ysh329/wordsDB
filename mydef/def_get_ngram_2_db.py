@@ -14,7 +14,6 @@ __author__ = 'yuens'
 import MySQLdb
 import logging
 ################################### PART2 CLASS && FUNCTION ###########################
-
 def get_one_bi_tri_gram(raw_string):
     """ Get onegram, bigram, trigram from raw_string and
      return.
@@ -107,7 +106,7 @@ def insert_ngram_2_db(word, showtimes, database_name, table_name):
 
 
 
-def computation_corpus_scale_2_db(database_name, table_name):
+def computation_corpus_scale_and_weight_2_db(database_name, table_name):
     """ Compute the scale of corpus. Different ngram word, its corpus
      scale is different, such as bigram word's corpus scale need to
      compute the quantity of bigram words.
@@ -129,93 +128,21 @@ def computation_corpus_scale_2_db(database_name, table_name):
         logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
     cursor = con.cursor()
     try:
-        cursor.execute("""SELECT gram FROM %s.%s group by gram"""\
-                       % (database_name, table_name))
-        gram_tuple = cursor.fetchall()
-        logging.info("gram_tuple:%s" % str(gram_tuple))
-        gram_list = map(lambda gram: int(gram[0]), gram_tuple)
-        logging.info("gram_list:%s" % str(gram_list))
-        for idx in xrange(len(gram_list)):
-            ngram = gram_list[idx]
-            logging.info("ngram:%s" % ngram)
-            cursor.execute("""SELECT COUNT(*) FROM %s.%s WHERE gram=%d"""\
-                           % (database_name, table_name, ngram))
-            ngram_sum = int(cursor.fetchone()[0])
-            logging.info("ngram_sum:%s" % ngram_sum)
-            cursor.execute("""UPDATE %s.%s SET corpus_scale=%d WHERE gram=%d"""\
-                           % (database_name, table_name, ngram_sum, ngram))
-            con.commit()
-            logging.info("success in updating corpus scale for %s-gram word of %s word records."\
-                         % (ngram, ngram_sum))
+        sql_list = []
+        sql_list.append("SET @onegram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 1)" % (database_name, table_name))
+        sql_list.append("SET @bigram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 2)" % (database_name, table_name))
+        sql_list.append("SET @trigram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 3)" % (database_name, table_name))
+        sql_list.append("UPDATE %s.%s SET corpus_scale = @onegram_num WHERE gram = 1" % (database_name, table_name))
+        sql_list.append("UPDATE %s.%s SET corpus_scale = @bigram_num WHERE gram = 2" % (database_name, table_name))
+        sql_list.append("UPDATE %s.%s SET corpus_scale = @trigram_num WHERE gram = 3" % (database_name, table_name))
+        sql_list.append("UPDATE %s.%s SET weight = (showtimes / corpus_scale)" % (database_name, table_name))
+        map(lambda sql: cursor.execute(sql), sql_list)
+        con.commit()
+        logging.info("Success in updating corpus scale and weight of words.")
     except MySQLdb.Error, e:
         con.rollback()
         logging.error("Fail in selecting gram word in table %s of database %s."\
                       % (table_name, database_name))
-        logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
-    finally:
-        con.close()
-    return None
-
-
-
-def create_trigger_on_field_corpus_scale_and_weight(trigger_name, database_name, table_name):
-    """ Create trigger(trigger_name) in database(database_name) of
-     table(table_name) on corpus scale field(corpus_scale) and weight
-     field(weight).
-        By using trigger, it can auto accomplish the computation
-     of corpus scale(corpus_scale), weight(weight) in table.
-    Args:
-        trigger_name    (str): name of trigger in table(table_name) of
-                            database(database_name)
-        database_name   (str): name of using trigger's database
-        table_name      (str): name of using trigger's table
-    Returns:
-        None
-    """
-    try:
-        con = MySQLdb.connect(host = "localhost",\
-                              user = "root",\
-                              passwd = "931209",\
-                              db = database_name,\
-                              charset = "utf8")
-        logging.info("Success in connecting MySQL.")
-    except MySQLdb.Error, e:
-        logging.error("Fail in connecting MySQL.")
-        logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
-    cursor = con.cursor()
-    try:
-        sql = """
-                 DROP TRIGGER IF EXISTS %s;
-                 CREATE TRIGGER %s
-                 AFTER UPDATE ON %s.%s
-                 FOR EACH ROW
-                 BEGIN
-                     SET @onegram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 1);
-                     SET @bigram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 2);
-                     SET @trigram_num = (SELECT SUM(showtimes) FROM %s.%s WHERE gram = 3);
-                     UPDATE %s.%s SET corpus_scale = (@onegram_num WHERE gram = 1);
-                     UPDATE %s.%s SET corpus_scale = (@bigram_num WHERE gram = 2);
-                     UPDATE %s.%s SET corpus_scale = (@trigram_num WHERE gram = 3);
-                     UPDATE %s.%s SET weight = (showtimes / corpus_scale);
-                 END;
-              """\
-                  % (trigger_name,\
-                     trigger_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name,\
-                     database_name, table_name)
-        logging.info("sql:%s" % sql)
-        cursor.execute(sql)
-        con.commit()
-        logging.info("Success in creating trigger of updating corpus_scale and weight fields in mysql.")
-    except MySQLdb.Error, e:
-        con.rollback()
-        logging.error("Failed in creating trigger of updating corpus_scale and weight fields in mysql.")
         logging.error("MySQL Error %d: %s." % (e.args[0], e.args[1]))
     finally:
         con.close()
