@@ -18,10 +18,10 @@ def get_one_bi_tri_gram(raw_string):
     """ Get onegram, bigram, trigram from raw_string and
      return.
     Args:
-        raw_string   (str): a string stored the text
+        raw_string   (str): constitution.txt string stored the text
     Returns:
         (one_gram_list, bi_gram_list, tri_gram_list) (tuple):
-            each element in tuple is a list of onegram or
+            each element in tuple is constitution.txt list of onegram or
             bigram or trigram.
     """
     one_gram_list = []

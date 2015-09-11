@@ -20,7 +20,7 @@ import logging
 ################################### PART2 CLASS && FUNCTION ###########################
 class class_create_database_table(object):
     def __init__(self):
-        """ Initialize a entry of class.
+        """ Initialize constitution.txt entry of class.
         Args:
             database_name (str): input database name
         Returns:
@@ -31,7 +31,7 @@ class class_create_database_table(object):
                   format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
                   datefmt = '%y-%m-%d %H:%M:%S',
                   filename = '../main.log',
-                  filemode = 'a')
+                  filemode = 'constitution.txt')
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s')
@@ -49,7 +49,7 @@ class class_create_database_table(object):
 
 
     def __del__(self):
-        """ Delete a entry of class.
+        """ Delete constitution.txt entry of class.
         Args:
             None
         Returns:
@@ -66,7 +66,7 @@ class class_create_database_table(object):
     def create_database(self, database_name):
         """ Create database named database_name('wordsDB'), which is used for storing words.
         Args:
-            database_name (str): a string stored the database's name prepared to be created.
+            database_name (str): constitution.txt string stored the database's name prepared to be created.
         Returns:
             None
         """
@@ -87,8 +87,8 @@ class class_create_database_table(object):
         """ Create table(table_name) of database(database_name), which is used for storing
          words.
         Args:
-            database_name   (str): a string stored the database's name.
-            table_name      (str): a string stored the table's name prepared to be created.
+            database_name   (str): constitution.txt string stored the database's name.
+            table_name      (str): constitution.txt string stored the table's name prepared to be created.
         Returns:
             None
         """

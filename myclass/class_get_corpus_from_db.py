@@ -17,10 +17,10 @@ import logging
 ################################### PART2 CLASS && FUNCTION ###########################
 class class_get_corpus_from_db(object):
     def __init__(self, database_name):
-        """ Initialize a entry of class.
+        """ Initialize constitution.txt entry of class.
         Args:
-            database_name   (str): a string stored the database's name.
-            table_name      (str): a string stored the table's name prepared to be created.
+            database_name   (str): constitution.txt string stored the database's name.
+            table_name      (str): constitution.txt string stored the table's name prepared to be created.
         Returns:
             None
         """
@@ -29,7 +29,7 @@ class class_get_corpus_from_db(object):
                   format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
                   datefmt = '%y-%m-%d %H:%M:%S',
                   filename = '../main.log',
-                  filemode = 'a')
+                  filemode = 'constitution.txt')
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s')
@@ -47,7 +47,7 @@ class class_get_corpus_from_db(object):
 
 
     def __del__(self):
-        """ Delete a entry of class.
+        """ Delete constitution.txt entry of class.
         Args:
             None
         Returns:
@@ -64,11 +64,11 @@ class class_get_corpus_from_db(object):
     def get_essay_list_from_db(self, database_name, table_name):
         """ Get essays from table(table_name) of database(database_name).
         Args:
-            database_name   (str): a string stored the database's name.
-            table_name      (str): a string stored the essays data table's name.
+            database_name   (str): constitution.txt string stored the database's name.
+            table_name      (str): constitution.txt string stored the essays data table's name.
         Returns:
-            essay_list      (list): a list contains essay string(each element in
-         list is a string).
+            essay_list      (list): constitution.txt list contains essay string(each element in
+         list is constitution.txt string).
         """
         essay_list = []
         cursor = self.con.cursor()

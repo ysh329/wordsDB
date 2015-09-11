@@ -181,7 +181,7 @@ if __name__ == "__main__":
               format = '%(asctime)s  %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s',
               datefmt = '%y-%m-%d %H:%M:%S',
               filename = './main.log',
-              filemode = 'a')
+              filemode = 'constitution.txt')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s %(levelname)5s %(filename)19s[line:%(lineno)3d] %(funcName)s %(message)s')
